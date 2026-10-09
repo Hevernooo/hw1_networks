@@ -109,18 +109,15 @@ def send_http(method, route, params=None, headers=None,
     headers = headers or {}
     cookies = cookies or {}
 
-    # Добавляем GET-параметры в URL
     if params:
         route += "?" + urlencode(params)
 
-    # Формируем Cookie
     if cookies:
         headers["Cookie"] = "; ".join(
             f"{key}={value}"
             for key, value in cookies.items()
         )
 
-    # Формируем тело запроса
     if files is not None:
         boundary = "----Boundary"
 
@@ -154,7 +151,6 @@ def send_http(method, route, params=None, headers=None,
     else:
         body_bytes = b""
 
-    # Формируем HTTP-запрос
     request = f"{method} {route} HTTP/1.1\r\n"
     request += f"Host: {HOST}\r\n"
 
@@ -169,14 +165,12 @@ def send_http(method, route, params=None, headers=None,
 
     request = request.encode("utf-8") + body_bytes
 
-    # Отправляем запрос
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.connect((HOST, PORT))
         sock.sendall(request)
 
         response = b""
 
-        # Сначала получаем HTTP-заголовки
         while b"\r\n\r\n" not in response:
             response += sock.recv(4096)
 
@@ -185,7 +179,6 @@ def send_http(method, route, params=None, headers=None,
             1
         )
 
-        # Ищем Content-Length
         content_length = None
 
         for line in response_headers.split(b"\r\n"):
@@ -195,14 +188,12 @@ def send_http(method, route, params=None, headers=None,
                 )
                 break
 
-        # Если Content-Length есть — читаем ровно столько данных
         if content_length is not None:
             while len(response_body) < content_length:
                 response_body += sock.recv(4096)
 
             response_body = response_body[:content_length]
 
-        # Если Content-Length нет — читаем до закрытия соединения
         else:
             while True:
                 data = sock.recv(4096)
@@ -245,7 +236,6 @@ def send_request(html, task):
 
 
 def main():
-    # Первый запрос
     html = send_http(
         method="GET",
         route="/",
