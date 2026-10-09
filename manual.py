@@ -1,7 +1,6 @@
 import re
 import socket
 from urllib.parse import urlencode
-
 from bs4 import BeautifulSoup
 
 
@@ -17,18 +16,15 @@ def parse_route(html):
 
     for code in soup.find_all("code"):
         text = code.get_text(strip=True)
-
         if text.startswith("/"):
             return text
 
     for link in soup.find_all("a"):
         href = link.get("href")
-
         if href:
             return href
 
     match = re.search(r"/[A-Za-z0-9_-]+", soup.get_text())
-
     if match:
         return match.group(0)
 
@@ -63,13 +59,11 @@ def parse_parameters(html):
 
         for row in table.find_all("tr"):
             cells = row.find_all("td")
-
             if len(cells) != 2:
                 continue
 
             key = cells[0].get_text(strip=True)
             value = cells[1].get_text(strip=True)
-
             result[key] = value
 
     return params, headers, body, cookies
@@ -87,7 +81,6 @@ def parse_upload_files(html):
 
         filename = cells[0].get_text(strip=True)
         content = cells[1].get_text()
-
         files[filename] = content
 
     return files
@@ -227,11 +220,8 @@ def send_http(method, route, params=None, headers=None,
 
 def send_request(html, task):
     route = parse_route(html)
-
     params, headers, body, cookies = parse_parameters(html)
-
     cookies["user"] = USER_ID
-
     files = None
 
     if task == "UPLOAD":
